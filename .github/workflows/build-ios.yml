@@ -11,66 +11,39 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       
-    - name: List files
+    - name: Explore project structure
       run: |
-        echo "=== Current directory ==="
-        pwd
+        echo "========================================="
+        echo "Current directory contents:"
+        echo "========================================="
         ls -la
-        echo "=== Looking for Xcode files ==="
-        find . -name "*.xcworkspace" -o -name "*.xcodeproj"
-      
-    - name: Setup Xcode
-      uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: '15.2'
-    
-    - name: Check Ruby
-      run: |
-        ruby --version
-        gem --version
         
-    - name: Install CocoaPods
-      run: |
-        sudo gem install cocoapods
-        pod --version
-    
-    - name: Pod Install
-      run: |
-        if [ -f "Podfile" ]; then
-          pod install --verbose
-        else
-          echo "No Podfile found, skipping pod install"
-        fi
-    
-    - name: List workspace
-      run: |
-        ls -la *.xcworkspace 2>/dev/null || echo "No workspace found"
-        ls -la *.xcodeproj 2>/dev/null || echo "No project found"
-    
-    - name: Build
-      run: |
-        # Try to find the correct workspace/project
-        if [ -f "ElementX.xcworkspace" ]; then
-          echo "Building with ElementX.xcworkspace"
-          xcodebuild -list -workspace ElementX.xcworkspace
-          xcodebuild clean build \
-            -workspace ElementX.xcworkspace \
-            -scheme ElementX \
-            -configuration Debug \
-            -destination 'generic/platform=iOS Simulator' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO || true
-        elif [ -f "ElementX.xcodeproj" ]; then
-          echo "Building with ElementX.xcodeproj"
-          xcodebuild -list -project ElementX.xcodeproj
-          xcodebuild clean build \
-            -project ElementX.xcodeproj \
-            -scheme ElementX \
-            -configuration Debug \
-            -destination 'generic/platform=iOS Simulator' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO || true
-        else
-          echo "Error: No Xcode workspace or project found"
-          exit 1
-        fi
+        echo ""
+        echo "========================================="
+        echo "Looking for Xcode files:"
+        echo "========================================="
+        find . -name "*.xcworkspace" -o -name "*.xcodeproj" -o -name "Package.swift" | head -30
+        
+        echo ""
+        echo "========================================="
+        echo "Looking for project files:"
+        echo "========================================="
+        ls -la *.xc* 2>/dev/null || echo "No .xc files in root"
+        
+        echo ""
+        echo "========================================="
+        echo "Subdirectories:"
+        echo "========================================="
+        ls -d */ 2>/dev/null | head -20
+        
+        echo ""
+        echo "========================================="
+        echo "Check for Swift Package:"
+        echo "========================================="
+        cat Package.swift 2>/dev/null || echo "No Package.swift in root"
+        
+        echo ""
+        echo "========================================="
+        echo "Tree structure (2 levels):"
+        echo "========================================="
+        find . -maxdepth 2 -type d | head -50
