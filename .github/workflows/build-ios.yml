@@ -11,39 +11,28 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       
-    - name: Explore project structure
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '15.2'
+    
+    - name: Show Xcode version
+      run: xcodebuild -version
+    
+    - name: Resolve Swift Packages
       run: |
-        echo "========================================="
-        echo "Current directory contents:"
-        echo "========================================="
-        ls -la
-        
-        echo ""
-        echo "========================================="
-        echo "Looking for Xcode files:"
-        echo "========================================="
-        find . -name "*.xcworkspace" -o -name "*.xcodeproj" -o -name "Package.swift" | head -30
-        
-        echo ""
-        echo "========================================="
-        echo "Looking for project files:"
-        echo "========================================="
-        ls -la *.xc* 2>/dev/null || echo "No .xc files in root"
-        
-        echo ""
-        echo "========================================="
-        echo "Subdirectories:"
-        echo "========================================="
-        ls -d */ 2>/dev/null | head -20
-        
-        echo ""
-        echo "========================================="
-        echo "Check for Swift Package:"
-        echo "========================================="
-        cat Package.swift 2>/dev/null || echo "No Package.swift in root"
-        
-        echo ""
-        echo "========================================="
-        echo "Tree structure (2 levels):"
-        echo "========================================="
-        find . -maxdepth 2 -type d | head -50
+        xcodebuild -resolvePackageDependencies \
+          -project ElementX.xcodeproj \
+          -scheme ElementX
+    
+    - name: Build for iOS Simulator
+      run: |
+        xcodebuild clean build \
+          -project ElementX.xcodeproj \
+          -scheme ElementX \
+          -configuration Debug \
+          -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' \
+          -skipPackagePluginValidation \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO
